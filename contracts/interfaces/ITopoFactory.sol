@@ -5,5 +5,5 @@ interface ITopoFactory {
 
     function getPair(address tokenA, address tokenB) external view returns (address pair);
 
-    function createPair(address tokenA, address tokenB) external returns (address pair, address pToken);
+    function createPair(address tokenA, address tokenB) external returns (address pair);
 }
