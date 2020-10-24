@@ -11,8 +11,8 @@ import './libraries/TopoSwapLibrary.sol';
 contract TopoRouter is ITopoRouter {
     using SafeMath for uint;
 
-//    address public immutable override factory;
-//    address public immutable override WETH;
+    address public immutable override factory;
+    address public immutable override WETH;
 
     modifier ensure(uint deadline) {
         require(deadline >= block.timestamp, 'EXPIRED');
