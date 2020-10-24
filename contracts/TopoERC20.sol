@@ -6,7 +6,7 @@ import './libraries/SafeMath.sol';
 contract TopoERC20 is ITopoERC20 {
     using SafeMath for uint;
 
-    string public constant name = 'Topo PollToken';
+    string public constant name = 'Topo Pool Token';
     string public symbol = 'TPT';
     uint8 public constant decimals = 18;
     uint  public totalSupply;
