@@ -17,10 +17,6 @@ contract TopoFactory is ITopoFactory {
         setter = _setter;
     }
 
-    function setSetter(address _setter) external {
-        require(false,"NOT SUPPORT");
-    }
-
     function setFeeTo(address _feeTo) external {
         require(msg.sender == setter, 'FORBIDDEN');
         feeTo = _feeTo;
