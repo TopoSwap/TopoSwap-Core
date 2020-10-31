@@ -49,4 +49,5 @@ interface ITopoPair {
     function sync() external;
 
     function initialize(address, address) external;
+    function setCallback(address _callBack) external;
 }

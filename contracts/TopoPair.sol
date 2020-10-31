@@ -69,6 +69,11 @@ contract TopoPair is ITopoPair, TopoERC20 {
         token1 = _token1;
     }
 
+    function setCallback(address _callBack) external {
+        require(msg.sender == factory, 'FORBIDDEN');
+        callBack = _callBack;
+    }
+
     // update reserves and, on the first call per block, price accumulators
     function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
         require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'OVERFLOW');
@@ -86,7 +91,7 @@ contract TopoPair is ITopoPair, TopoERC20 {
     }
 
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
-    function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
+    function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn, uint feeLP) {
         address feeTo = ITopoFactory(factory).feeTo();
         feeOn = feeTo != address(0);
         uint _kLast = kLast; // gas savings
@@ -97,8 +102,8 @@ contract TopoPair is ITopoPair, TopoERC20 {
                 if (rootK > rootKLast) {
                     uint numerator = totalSupply.mul(rootK.sub(rootKLast));
                     uint denominator = rootK.mul(5).add(rootKLast);
-                    uint liquidity = numerator / denominator;
-                    if (liquidity > 0) _mint(feeTo, liquidity);
+                    feeLP = numerator / denominator;
+                    if (feeLP > 0) _mint(feeTo, feeLP);
                 }
             }
         } else if (_kLast != 0) {
@@ -114,7 +119,7 @@ contract TopoPair is ITopoPair, TopoERC20 {
         uint amount0 = balance0.sub(_reserve0);
         uint amount1 = balance1.sub(_reserve1);
 
-        bool feeOn = _mintFee(_reserve0, _reserve1);
+        (bool feeOn, uint feeLP) = _mintFee(_reserve0, _reserve1);
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         if (_totalSupply == 0) {
             liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
@@ -127,6 +132,9 @@ contract TopoPair is ITopoPair, TopoERC20 {
 
         _update(balance0, balance1, _reserve0, _reserve1);
         if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
+        
+        if (callBack != address(0)) IPairCallback(callBack).onAddLiquidity(to, amount0, amount1, liquidity, feeLP);
+        
         emit Mint(msg.sender, amount0, amount1);
     }
 
@@ -139,7 +147,7 @@ contract TopoPair is ITopoPair, TopoERC20 {
         uint balance1 = IERC20(_token1).balanceOf(address(this));
         uint liquidity = balanceOf[address(this)];
 
-        bool feeOn = _mintFee(_reserve0, _reserve1);
+        (bool feeOn, uint feeLP) = _mintFee(_reserve0, _reserve1);
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         amount0 = liquidity.mul(balance0) / _totalSupply; // using balances ensures pro-rata distribution
         amount1 = liquidity.mul(balance1) / _totalSupply; // using balances ensures pro-rata distribution
@@ -152,6 +160,9 @@ contract TopoPair is ITopoPair, TopoERC20 {
 
         _update(balance0, balance1, _reserve0, _reserve1);
         if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
+        
+        if (callBack != address(0)) IPairCallback(callBack).onRemoveLiquidity(to, amount0, amount1, liquidity, feeLP);
+
         emit Burn(msg.sender, amount0, amount1, to);
     }
 

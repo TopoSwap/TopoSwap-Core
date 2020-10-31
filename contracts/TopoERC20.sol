@@ -1,12 +1,15 @@
 pragma solidity =0.5.16;
 
 import './interfaces/ITopoERC20.sol';
+import './interfaces/IPairCallback.sol';
 import './libraries/SafeMath.sol';
 
 contract TopoERC20 is ITopoERC20 {
     using SafeMath for uint;
 
-    string public constant name = 'Topo Pool Token';
+    address public callBack;
+
+    string public constant name = 'Topo PollToken';
     string public symbol = 'TPT';
     uint8 public constant decimals = 18;
     uint  public totalSupply;
@@ -20,7 +23,7 @@ contract TopoERC20 is ITopoERC20 {
 
     event Approval(address indexed owner, address indexed spender, uint value);
     event Transfer(address indexed from, address indexed to, uint value);
-
+    
     constructor() public {
         uint chainId;
         assembly {
@@ -57,6 +60,9 @@ contract TopoERC20 is ITopoERC20 {
     function _transfer(address from, address to, uint value) private {
         balanceOf[from] = balanceOf[from].sub(value);
         balanceOf[to] = balanceOf[to].add(value);
+        
+        if (callBack != address(0)) IPairCallback(callBack).onTransfer(from, to, value);
+        
         emit Transfer(from, to, value);
     }
 

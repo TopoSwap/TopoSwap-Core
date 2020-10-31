@@ -6,6 +6,7 @@ import './TopoPair.sol';
 contract TopoFactory is ITopoFactory {
     address public feeTo;
     address public setter;
+    address public callBack;
 
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
@@ -20,6 +21,21 @@ contract TopoFactory is ITopoFactory {
     function setFeeTo(address _feeTo) external {
         require(msg.sender == setter, 'FORBIDDEN');
         feeTo = _feeTo;
+    }
+    
+    function setCallback(address _callBack) external {
+        require(msg.sender == setter, 'FORBIDDEN');
+        callBack = _callBack;
+    }
+    
+    function setPairCallback(address pair, bool enable) external {
+        require(msg.sender==setter || msg.sender==callBack, 'FORBIDDEN');
+        if (enable) {
+            ITopoPair(pair).setCallback(callBack);
+        }
+        else {
+            ITopoPair(pair).setCallback(address(0));
+        }
     }
 
     function allPairsLength() external view returns (uint) {
