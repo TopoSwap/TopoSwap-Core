@@ -2,6 +2,7 @@
 pragma solidity 0.6.0;
 
 import '../interfaces/IERC20.sol';
+import '../libraries/SafeMath.sol';
 import './TokenStorage.sol';
 
 contract TSCToken is TokenStorage, IERC20 {
@@ -36,13 +37,13 @@ contract TSCToken is TokenStorage, IERC20 {
         owner = newOwner;
     }
 
-    function name() external view returns (string memory) {
+    function name() external override view returns (string memory) {
         return _name;
     }
-    function symbol() external view returns (string memory) {
+    function symbol() external override view returns (string memory) {
         return _symbol;
     }
-    function decimals() external view returns (uint8) {
+    function decimals() external override view returns (uint8) {
         return _decimals;
     }
     function totalSupply() external override view returns (uint256) {
