@@ -13,9 +13,10 @@ contract TopoFactory is ITopoFactory {
 
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
-    constructor(address _setter) public {
+    constructor(address _setter, address _feeTo) public {
         require(_setter != address(0), 'SETTER INVALID');
         setter = _setter;
+        feeTo = _feeTo;
     }
 
     function setFeeTo(address _feeTo) external {
