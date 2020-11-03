@@ -20,7 +20,7 @@ library TopoSwapLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'cc334672911b6050aed80537bb2b4eedc8120210d32f7c028f28dd543956c894'   // init code hash
+                hex'a9c812f181a982f75808cf488e0fb33e9e80f388f4656143fcc32f7512245d49'   // init code hash
             ))));
     }
 
